@@ -9,12 +9,13 @@
 import UIKit
 import MapKit
 
-class PhotoMapViewController: UIViewController, UIImagePickerControllerDelegate, UINavigationControllerDelegate, LocationViewControllerDelegate, MKMapViewDelegate {
+class PhotoMapViewController: UIViewController, UIImagePickerControllerDelegate, UINavigationControllerDelegate, LocationViewControllerDelegate, MKMapViewDelegate  {
 
     @IBOutlet weak var mapView: MKMapView!
     
     var originalImage: UIImage?
     var editedImage: UIImage?
+    var thumbnail: UIImage?
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -44,14 +45,7 @@ class PhotoMapViewController: UIViewController, UIImagePickerControllerDelegate,
     }
 
     
-    // MARK: - Navigation
-
-    // In a storyboard-based application, you will often want to do a little preparation before navigation
-    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-        if let destinationVC = segue.destination as? LocationsViewController {
-            destinationVC.delegate = self
-        }
-    }
+    
     
     func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [String : Any]) {
         originalImage = info[UIImagePickerControllerOriginalImage] as! UIImage
@@ -65,13 +59,9 @@ class PhotoMapViewController: UIViewController, UIImagePickerControllerDelegate,
         
         UIGraphicsBeginImageContext(resizeRenderImageView.frame.size)
         resizeRenderImageView.layer.render(in: UIGraphicsGetCurrentContext()!)
-        var thumbnail = UIGraphicsGetImageFromCurrentImageContext()
+        thumbnail = UIGraphicsGetImageFromCurrentImageContext()
         UIGraphicsEndImageContext()
         
-        let photoAnnotation = PhotoAnnotation()
-        photoAnnotation.photo = thumbnail
-        photoAnnotation.coordinate = CLLocationCoordinate2DMake(37.783333, -122.416667)
-        mapView.addAnnotation(photoAnnotation)
         
         
         dismiss(animated: true, completion: nil)
@@ -79,6 +69,12 @@ class PhotoMapViewController: UIViewController, UIImagePickerControllerDelegate,
     }
     
     func locationsPickedLocation(controller: LocationsViewController, latitude: NSNumber, longitude: NSNumber) {
+        
+        let photoAnnotation = PhotoAnnotation()
+        photoAnnotation.photo = thumbnail
+        photoAnnotation.coordinate = CLLocationCoordinate2DMake(37.783333, -122.416667)
+        mapView.addAnnotation(photoAnnotation)
+        
         self.navigationController?.popToViewController(self, animated: true)
     }
 
@@ -96,8 +92,31 @@ class PhotoMapViewController: UIViewController, UIImagePickerControllerDelegate,
         if let photoAnnotation = annotation as? PhotoAnnotation {
             imageView.image = photoAnnotation.photo
         }
+        
+        annotationView?.rightCalloutAccessoryView = UIButton(type: UIButtonType.detailDisclosure)
 //        imageView.image = UIImage(named: "camera")
         
         return annotationView
+    }
+    
+//    func mapView(_ mapView: MKMapView, didSelect view: MKAnnotationView) {
+//        
+//    }
+    
+    func mapView(_ mapView: MKMapView, annotationView view: MKAnnotationView, calloutAccessoryControlTapped control: UIControl) {
+        
+        performSegue(withIdentifier: "fullImageSegue", sender: nil)
+    }
+    
+    
+    // MARK: - Navigation
+    
+    // In a storyboard-based application, you will often want to do a little preparation before navigation
+    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
+        if let destinationVC = segue.destination as? LocationsViewController {
+            destinationVC.delegate = self
+        } else if let destinationVC = segue.destination as? FullImageViewController {
+            destinationVC.image = originalImage
+        }
     }
 }
