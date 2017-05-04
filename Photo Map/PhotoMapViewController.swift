@@ -69,7 +69,7 @@ class PhotoMapViewController: UIViewController, UIImagePickerControllerDelegate,
         UIGraphicsEndImageContext()
         
         let photoAnnotation = PhotoAnnotation()
-        photoAnnotation.photo = resizeRenderImageView.image
+        photoAnnotation.photo = thumbnail
         photoAnnotation.coordinate = CLLocationCoordinate2DMake(37.783333, -122.416667)
         mapView.addAnnotation(photoAnnotation)
         
@@ -93,7 +93,10 @@ class PhotoMapViewController: UIViewController, UIImagePickerControllerDelegate,
         }
         
         let imageView = annotationView?.leftCalloutAccessoryView as! UIImageView
-        imageView.image = UIImage(named: "camera")
+        if let photoAnnotation = annotation as? PhotoAnnotation {
+            imageView.image = photoAnnotation.photo
+        }
+//        imageView.image = UIImage(named: "camera")
         
         return annotationView
     }
