@@ -23,10 +23,10 @@ class PhotoMapViewController: UIViewController, UIImagePickerControllerDelegate,
         
         let sfRegion = MKCoordinateRegionMake(CLLocationCoordinate2DMake(37.783333, -122.416667), MKCoordinateSpanMake(0.1, 0.1))
         mapView.setRegion(sfRegion, animated: false)
-        let annotation = MKPointAnnotation()
-        annotation.coordinate = CLLocationCoordinate2DMake(37.783333, -122.416667)
-        annotation.title = "Picture!"
-        mapView.addAnnotation(annotation)
+//        let annotation = MKPointAnnotation()
+//        annotation.coordinate = CLLocationCoordinate2DMake(37.783333, -122.416667)
+//        annotation.title = "Picture!"
+//        mapView.addAnnotation(annotation)
         mapView.delegate = self
     }
 
@@ -56,10 +56,24 @@ class PhotoMapViewController: UIViewController, UIImagePickerControllerDelegate,
     func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [String : Any]) {
         originalImage = info[UIImagePickerControllerOriginalImage] as! UIImage
         editedImage = info[UIImagePickerControllerOriginalImage] as! UIImage
-        let annotation = MKPointAnnotation()
-        annotation.coordinate = CLLocationCoordinate2DMake(37.783333, -122.416667)
-        annotation.title = "Picture!"
-        mapView.addAnnotation(annotation)
+        
+        var resizeRenderImageView = UIImageView(frame: CGRect(x: 0, y: 0, width: 45, height: 45))
+        resizeRenderImageView.layer.borderColor = UIColor.white.cgColor
+        resizeRenderImageView.layer.borderWidth = 3.0
+        resizeRenderImageView.contentMode = .scaleAspectFit
+        resizeRenderImageView.image = editedImage
+        
+        UIGraphicsBeginImageContext(resizeRenderImageView.frame.size)
+        resizeRenderImageView.layer.render(in: UIGraphicsGetCurrentContext()!)
+        var thumbnail = UIGraphicsGetImageFromCurrentImageContext()
+        UIGraphicsEndImageContext()
+        
+        let photoAnnotation = PhotoAnnotation()
+        photoAnnotation.photo = resizeRenderImageView.image
+        photoAnnotation.coordinate = CLLocationCoordinate2DMake(37.783333, -122.416667)
+        mapView.addAnnotation(photoAnnotation)
+        
+        
         dismiss(animated: true, completion: nil)
         performSegue(withIdentifier: "tagSegue", sender: nil)
     }
