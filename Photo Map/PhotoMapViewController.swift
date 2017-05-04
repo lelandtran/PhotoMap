@@ -72,7 +72,7 @@ class PhotoMapViewController: UIViewController, UIImagePickerControllerDelegate,
         
         let photoAnnotation = PhotoAnnotation()
         photoAnnotation.photo = thumbnail
-        photoAnnotation.coordinate = CLLocationCoordinate2DMake(37.783333, -122.416667)
+        photoAnnotation.coordinate = CLLocationCoordinate2DMake(Double(latitude), Double(longitude))
         mapView.addAnnotation(photoAnnotation)
         
         self.navigationController?.popToViewController(self, animated: true)
